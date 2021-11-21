@@ -1,0 +1,8 @@
+{
+    "scripts": {
+        "gen": "ergogen ergogen/tuck-n-roll.yaml --output ergogen/output"
+    },
+    "dependencies": {
+        "ergogen": "github:MvEerd/ergogen#mveerd"
+    }
+}
