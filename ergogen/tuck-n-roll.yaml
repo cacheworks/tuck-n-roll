@@ -1,56 +1,58 @@
+units:
+  choc_keycap_x: 17.5
+  choc_keycap_y: 16.5
+
+  # visual_x/_y are built in units
+  # these can be overridden to set the keycap size for demo.dxf
+  visual_x: choc_keycap_x
+  visual_y: choc_keycap_y
 points:
-  rotate: 0
   zones:
     matrix:
       columns:
         pinky:
-          origin: [ 0, -1cy ]
           rotate: 19  # 19 degrees
-          stagger: 0 # affects distance to previous column so useless for a left pinky column
-          spread: 0 # affects distance to previous column so useless for a left pinky column
+          origin: [ 0, -1cy ]
           key:
             column_net: P4
             column_mark: P
         ring:
+          rotate: -4 # 15 degrees cumulative
           origin: [ 0, -1cy ]
-          rotate: -4 # 15 degrees
           stagger: 10
           spread: 23
           key:
             column_net: P5
             column_mark: R
         middle:
+          rotate: -10 # 5 degrees cumulative
           origin: [ 0, -1cy ]
-          rotate: -10 # 5 degrees
           stagger: -1
           spread: 18
           key:
             column_net: P6
             column_mark: M
         index:
+          rotate: -5 # 0 degrees cumulative
           origin: [ 0, -1cy ]
-          rotate: -5 # 0 degrees
           stagger: -3
           spread: 20
           key:
             column_net: P21
             column_mark: IN
         inner:
-          origin: [ 0, -1cy ]
-          rotate: 0
           stagger: -1
           key:
             column_net: P20
             column_mark: I
       rows:
         bottom:
-          padding: 1cy
+          padding: 1cy # Set Choc Y spacing to the row above
           row_net: P16
         home:
-          padding: 1cy
+          padding: 1cy # Set Choc Y spacing to the row above
           row_net: P10
         top:
-          padding: 1cy
           row_net: P18
     thumbfan:
       anchor:
@@ -80,24 +82,26 @@ points:
         thumb:
           padding: 0
           row_net: P7
+  # Global key scope
   key:
     footprints:
       choc_hotswap:
         type: choc
         nets:
-          from: =colrow
-          to: =column_net
+          from: =colrow # colrow is a unique string for each column+row point
+          to: =column_net # This is a key property set in each column
         params:
           keycaps: true
           reverse: true
           hotswap: true
+      # Overlay a choc footprint on top of the choc_hotswap and rotate it by 180 degrees to combine them.
       choc:
         type: choc
         anchor:
           rotate: 180
         nets:
-          from: =colrow
-          to: =column_net
+          from: =colrow # colrow is a unique string for each column+row point
+          to: =column_net # This is a key property set in each column
         params:
           keycaps: true
           reverse: true
@@ -107,14 +111,14 @@ points:
           rotate: 90
           shift: [ 8.25, 0 ]
         nets:
-          from: =colrow
-          to: =row_net
+          from: =colrow # colrow is a unique string for each column+row point
+          to: =row_net # This is a key property set in on each row
         params:
           via_in_pad: true
           through_hole: false
 outlines:
   exports:
-    raw:
+    polygonoutline:
       - type: polygon
         points:
           - ref: matrix_pinky_bottom
@@ -131,52 +135,38 @@ outlines:
             shift: [ 10, 9 ]
           - ref: thumbfan_far_thumb
             shift: [ 10, -9 ]
-        operation: stack
-    panel:
+    # Apply a fillet to the polygon specified above to round the corners
+    roundedpolygon:
       - type: outline
-        name: raw
-        fillet: 0.5
+        name: polygonoutline
+        fillet: 4
+    # Create an outline of 14x14mm cutouts on each key/point
     switch_cutouts:
       - type: keys
         side: left
-        size: 14
+        size: 14 # 14mmx14mm cutouts will fit Choc and MX switches
         bound: false
+    # Create a keycap outline for each key/point
     keycap_outlines:
       - type: keys
         side: left
-        size: [1cx - 0.5, 1cy - 0.5] # Choc keycaps are 17.5 x 16.5
+        size: [choc_keycap_x, choc_keycap_y] # Choc keycaps are 17.5 x 16.5
         bound: false
-    switch_plate:
-      main:
-        type: outline
-        name: raw
-        fillet: 0.5
-      keyholes:
-        type: outline
-        name: switch_cutouts
-        operation: subtract
-    choc_caps_plate:
-      main:
-        type: outline
-        name: raw
-        fillet: 0.5
-      keycaps:
-        type: outline
-        name: keycap_outlines
-        operation: subtract
+    # Subtract switch_cutouts from the main shape to create a switch plate outline
+    switch_plate: [roundedpolygon, -switch_cutouts]
+    # Subtract keycap_outlines from the outer shape to visualize keycaps
+    choc_caps_preview: [roundedpolygon, -keycap_outlines]
 cases:
+  # Generate switch plate STL to print a test layout
   switchplate:
     - type: outline
       name: switch_plate
-      extrude: 1.2 # mm, choc
-      shift: [ 0, 0, 0 ]
-      rotate: [ 0, 0, 0 ]
-      operation: add
+      extrude: 1.2 # mm, Choc plate height
 pcbs:
   tuck-n-roll:
     outlines:
-      main:
-        outline: panel
+      - outline:
+          roundedpolygon
     footprints:
       promicro:
         type: promicro
@@ -186,15 +176,6 @@ pcbs:
           rotate: -127
         params:
           orientation: down
-      reset:
-        type: tactswitch
-        anchor:
-          ref: matrix_inner_top
-          shift: [43, -10]
-          rotate: 53
-        nets:
-          from: GND
-          to: RST
       scrollwheel:
         type: scrollwheel
         anchor:
@@ -222,6 +203,21 @@ pcbs:
         params:
           via_in_pad: true
           through_hole: false
+      ###############################################
+      ## The footprints below this line are custom
+      ## they rely on a fork of Ergogen to work
+      ##
+      ## Delete everything below this line to use this with V3.x.x
+      ###############################################
+      reset:
+        type: tactswitch
+        anchor:
+          ref: matrix_inner_top
+          shift: [43, -10]
+          rotate: 53
+        nets:
+          from: GND
+          to: RST
       mounthole1:
         type: mountinghole
         anchor:
