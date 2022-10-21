@@ -14,41 +14,41 @@ points:
           rotate: 19  # 19 degrees
           origin: [ 0, -1cy ]
           key:
-            column_net: P4
+            column_net: P4 # This sets the column pin for all keys in the pinky column
         ring:
           rotate: -4 # 15 degrees cumulative
           origin: [ 0, -1cy ]
           stagger: 10
           spread: 23
           key:
-            column_net: P5
+            column_net: P5 # This sets the column pin for all keys in the ring column
         middle:
           rotate: -10 # 5 degrees cumulative
           origin: [ 0, -1cy ]
           stagger: -1
           spread: 18
           key:
-            column_net: P6
+            column_net: P6 # This sets the column pin for all keys in the middle column
         index:
           rotate: -5 # 0 degrees cumulative
           origin: [ 0, -1cy ]
           stagger: -3
           spread: 20
           key:
-            column_net: P21
+            column_net: P21 # This sets the column pin for all keys in the index column
         inner:
           stagger: -1
           key:
-            column_net: P20
+            column_net: P20 # This sets the column pin for all keys in the inner column
       rows:
         bottom:
           padding: 1cy # Set Choc Y spacing to the row above
-          row_net: P16
+          row_net: P16 # This sets the row pin for all keys in the bottom row
         home:
           padding: 1cy # Set Choc Y spacing to the row above
-          row_net: P10
+          row_net: P10 # This sets the row pin for all keys in the home row
         top:
-          row_net: P18
+          row_net: P18 # This sets the row pin for all keys in the top row
     thumbfan:
       anchor:
         ref: matrix_inner_bottom
@@ -57,31 +57,31 @@ points:
         near:
           rotate: -15
           key:
-            column_net: P6
+            column_net: P6 # This sets the column pin for all keys in the near thumb column (same pin as middle column)
         home:
           spread: 19
           rotate: -10 # -25 degrees cumulative
           origin: [-9.5, -9]
           key:
-            column_net: P5
+            column_net: P5 # This sets the column pin for all keys in the home thumb column (same pin as ring column)
         far:
           spread: 19
           rotate: -10 # 35 degrees cumulative
           origin: [-9.5, -9]
           key:
-            column_net: P4
+            column_net: P4 # This sets the column pin for all keys in the far thumb column (same pin as pinky column)
       rows:
         thumb:
           padding: 0
-          row_net: P7
+          row_net: P7 # This sets the row pin for all keys in the thumb row
   # Global key scope
   key:
     footprints:
       choc_hotswap:
         type: choc
         nets:
-          from: =colrow # colrow is a unique string for each column+row point
-          to: =column_net # This is a key property set in each column
+          from: =colrow # colrow is a unique string for each column+row point (pinky_home_key, middle_bottom_key, etc.), this connect to the diode.
+          to: =column_net # This is a key property that we specified as `column_net:` in the above columns
         params:
           keycaps: true
           reverse: true
@@ -92,8 +92,8 @@ points:
         anchor:
           rotate: 180
         nets:
-          from: =colrow # colrow is a unique string for each column+row point
-          to: =column_net # This is a key property set in each column
+          from: =colrow # colrow is a unique string for each column+row point (pinky_home_key, middle_bottom_key, etc.), this connects to the diode.
+          to: =column_net # This is a key property that we specified as `column_net:` in the above columns
         params:
           keycaps: true
           reverse: true
@@ -103,8 +103,8 @@ points:
           rotate: 90
           shift: [ 8.25, 0 ]
         nets:
-          from: =colrow # colrow is a unique string for each column+row point
-          to: =row_net # This is a key property set in on each row
+          from: =colrow # colrow is a unique string for each column+row point(pinky_home_key, middle_bottom_key, etc.), this connects to the switch.
+          to: =row_net # This is a key property that we specified as `row_net:` in the above rows
         params:
           via_in_pad: true # This option requires a fork of ergogen
           through_hole: false # This option requires a fork of ergogen
